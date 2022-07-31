@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LEGO Sets Through the Years</title>
 
-    <script src="http://d3js.org/d3.v5.min.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.0.0/d3.min.js" charset="utf-8"></script>
     <style>
         div {
             display: flex;
@@ -43,15 +43,19 @@
         }
     </style>
 </head>
-<body style="background-color:#141414">
+<body onload="init()" style="background-color:#141414">
     <svg>
         <g></g>
     </svg>
 
     <script>
-        d3.csv('data/sets.csv')
-            .then(function(data) {
-                const num_sets = d3.nest()
+        async function init() {
+            const sets_data = await d3.csv("data/sets.csv");
+            const inventories_data = await d3.csv("data/inventories.csv");
+            const inventory_parts_data = await d3.csv("data/inventory_parts.csv");
+            const colors_data = await d3.csv("data/colors.csv");
+
+            const num_sets = d3.nest()
                 .key(function(d) {return d.year})
                 .key(function(d) {return d.set_num})
                 .entries(sets_data);
@@ -126,18 +130,7 @@
                 .attr("transform","translate("+shift_right+","+shift_left+")")
                 .attr("class","axisWhite")
                 .call(d3.axisBottom(x_scale));
-            })
-            .catch(function(error){
-                console.log("error")l 
-            })
-        // async function init() {
-        //     const sets_data = await d3.csv("data/sets.csv");
-        //     const inventories_data = await d3.csv("data/inventories.csv");
-        //     const inventory_parts_data = await d3.csv("data/inventory_parts.csv");
-        //     const colors_data = await d3.csv("data/colors.csv");
-
-
-        // }
+        }
     </script>
 </body>
 </html>
