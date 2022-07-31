@@ -43,19 +43,15 @@
         }
     </style>
 </head>
-<body onload="init()" style="background-color:#141414">
+<body style="background-color:#141414">
     <svg>
         <g></g>
     </svg>
 
     <script>
-        async function init() {
-            const sets_data = await d3.csv("data/sets.csv");
-            const inventories_data = await d3.csv("data/inventories.csv");
-            const inventory_parts_data = await d3.csv("data/inventory_parts.csv");
-            const colors_data = await d3.csv("data/colors.csv");
-
-            const num_sets = d3.nest()
+        d3.csv('data/sets.csv')
+            .then(function(data) {
+                const num_sets = d3.nest()
                 .key(function(d) {return d.year})
                 .key(function(d) {return d.set_num})
                 .entries(sets_data);
@@ -129,8 +125,19 @@
                 .append("g")
                 .attr("transform","translate("+shift_right+","+shift_left+")")
                 .attr("class","axisWhite")
-                .call(d3.axisBottom(x_scale).tickFormat(d3.format("d")));
-        }
+                .call(d3.axisBottom(x_scale));
+            })
+            .catch(function(error){
+                console.log("error")l 
+            })
+        // async function init() {
+        //     const sets_data = await d3.csv("data/sets.csv");
+        //     const inventories_data = await d3.csv("data/inventories.csv");
+        //     const inventory_parts_data = await d3.csv("data/inventory_parts.csv");
+        //     const colors_data = await d3.csv("data/colors.csv");
+
+
+        // }
     </script>
 </body>
 </html>
