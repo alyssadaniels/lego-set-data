@@ -8,30 +8,43 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.0.0/d3.min.js" charset="utf-8"></script>
     <style>
-        div {
+        body {
+            text-align: center;
+            padding-top: 60px;
+        }
+
+        .content {
             display: flex;
-            flex-direction: column;
-            align-items: flex-start;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 60px;
         }
 
         h1 {
             font-family: arial;
             color: white;
-            font-weight: 500;
-            font-size: 20px;
-            padding: 0 20px;
+            font-weight: 600;
+            font-size: 60px;
+            padding: 20px 0 0 0;
         }
 
         p {
             font-family: arial;
             color: white;
-            padding-top: 90px;
-            font-size: 20px;
+            padding: 20px 60px 0 60px;
+            font-size: 28px;
+            overflow-wrap: break-word;
+            text-align: left;
+        }
+
+        div {
+            padding: 0 20px 0 20px;
         }
 
         svg {
             text-align: center;
-            margin: 120px;
+            margin: 40px;
         }
 
         .axisWhite line, path {
@@ -41,12 +54,36 @@
         .axisWhite text {
             fill: white;
         }
+
+        button {
+            margin: 100px;
+            background-color: yellow;
+            border: none;
+            border-radius: 8px;
+            text-align: center;
+            width: 240px;
+            height: 100px;
+            font-size: 50px;
+            color:black;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body onload="init()" style="background-color:#141414">
-    <svg>
-        <g></g>
-    </svg>
+    <h1>67 Years In Review</h1>
+    <div class="content">
+        <div>
+            <svg>
+                <g></g>
+            </svg>
+        </div>
+        <div>
+            <p id="description"></p>
+            <p>Hover over individual bars for more detailed information about each year.</p>
+            <button type="button" onclick="window.location.href='first_years.html'">Next</button>
+        </div>
+
+    </div>
 
     <script>
         async function init() {
@@ -60,26 +97,40 @@
                 .key(function(d) {return d.set_num})
                 .entries(sets_data);
 
-            const height = 800;
-            const width = 1200;
+            const height = 600;
+            const width = 1000;
             const bar_width = 14;
-            const margin = 50;
+            const margin = 70;
             const chart_width = width - margin;
             const chart_height = height - margin;
 
-
             max_sets = 0;
+            max_year = 0;
+            min_sets = num_sets[0].values.length;
+            min_year = 0;
+            total_sets = 0;
             years = [];
             bar_x = [];
 
             for (var i = 0; i < num_sets.length; i++) {
                 if (num_sets[i].values.length > max_sets) {
                     max_sets = num_sets[i].values.length;
+                    max_year = num_sets[i].key;
                 }
 
+                if (num_sets[i].values.length < min_sets) {
+                    min_sets = num_sets[i].values.length;
+                    min_year = num_sets[i].key;
+                }
+
+                total_sets += num_sets[i].values.length;
                 years.push(num_sets[i].key);
                 bar_x.push(i * bar_width);
             }
+
+            document.getElementById("description").innerHTML = "From 1950 to 2017 LEGO released around " + total_sets + " unique sets (wow!). LEGO released the least amount of sets in " + min_year + ", releasing only " + min_sets 
+            + ". This reduction in the number of sets may have been related to the tragic fire that struck LEGO's wooden-toy factory in February of that year. On the contrary, the most impressing year for LEGO sets was " + max_year
+            + ". There were " + max_sets + " released that year. ";
 
             years.sort();
 
@@ -109,8 +160,8 @@
                 .attr("stroke-width", 1)
                 // fill withmost prominent color?
                 .attr("fill", "#ffc247")
-                .attr("height", 10)
-                .attr("y", chart_height - 10)
+                .attr("height", 0)
+                .attr("y", chart_height)
                 .transition().duration(1000).delay(function(d,i) {return (i*50) + 100})
                 .attr("height", function(d) {
                     return chart_height-y_scale(d.values.length);
@@ -119,6 +170,7 @@
 
             d3.select("svg")
                 .append("g")
+                .style("font-size", "16px")
                 .attr("transform","translate("+margin / 2+","+margin / 2+")")
                 .attr("class","axisWhite")
                 .call(d3.axisLeft(y_scale))
@@ -127,9 +179,10 @@
             shift_left = chart_height + (margin / 2);
             d3.select("svg")
                 .append("g")
+                .style("font-size", "16px")
                 .attr("transform","translate("+shift_right+","+shift_left+")")
                 .attr("class","axisWhite")
-                .call(d3.axisBottom(x_scale));
+                .call(d3.axisBottom(x_scale).tickFormat(d3.format("d")));
         }
     </script>
 </body>
