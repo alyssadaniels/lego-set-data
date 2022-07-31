@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEGO Sets Through the Years</title>
+
+    <script src="http://d3js.org/d3.v5.min.js" charset="utf-8"></script>
+    <style>
+        div {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        h1 {
+            font-family: arial;
+            color: white;
+            font-weight: 500;
+            font-size: 20px;
+            padding: 0 20px;
+        }
+
+        p {
+            font-family: arial;
+            color: white;
+            padding-top: 90px;
+            font-size: 20px;
+        }
+
+        svg {
+            text-align: center;
+            margin: 120px;
+        }
+
+        .axisWhite line, path {
+            stroke: white;
+        }
+
+        .axisWhite text {
+            fill: white;
+        }
+    </style>
+</head>
+<body onload="init()" style="background-color:#141414">
+    <svg>
+        <g></g>
+    </svg>
+
+    <script>
+        async function init() {
+            const sets_data = await d3.csv("data/sets.csv");
+            const inventories_data = await d3.csv("data/inventories.csv");
+            const inventory_parts_data = await d3.csv("data/inventory_parts.csv");
+            const colors_data = await d3.csv("data/colors.csv");
+
+            const num_sets = d3.nest()
+                .key(function(d) {return d.year})
+                .key(function(d) {return d.set_num})
+                .entries(sets_data);
+
+            const height = 800;
+            const width = 1200;
+            const bar_width = 14;
+            const margin = 50;
+            const chart_width = width - margin;
+            const chart_height = height - margin;
+
+
+            max_sets = 0;
+            years = [];
+            bar_x = [];
+
+            for (var i = 0; i < num_sets.length; i++) {
+                if (num_sets[i].values.length > max_sets) {
+                    max_sets = num_sets[i].values.length;
+                }
+
+                years.push(num_sets[i].key);
+                bar_x.push(i * bar_width);
+            }
+
+            years.sort();
+
+            x_scale = d3.scaleLinear()
+                .domain(years)
+                .range(bar_x);
+
+            y_scale = d3.scaleLinear()
+                .domain([0,max_sets])
+                .range([chart_height,0]);
+                        
+            d3.select("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+            d3.select("g")
+                .attr("transform","translate("+margin / 2+","+margin / 2+")");
+
+            d3.select("g")
+                .selectAll("rect")
+                .data(num_sets)
+                .enter()
+                .append('rect')
+                .attr("width", bar_width)
+                .attr("x", function(d,i) {return i * bar_width})
+                .attr("stroke", "black")
+                .attr("stroke-width", 1)
+                // fill withmost prominent color?
+                .attr("fill", "#ffc247")
+                .attr("height", 10)
+                .attr("y", chart_height - 10)
+                .transition().duration(1000).delay(function(d,i) {return (i*50) + 100})
+                .attr("height", function(d) {
+                    return chart_height-y_scale(d.values.length);
+                })
+                .attr("y", function(d) {return y_scale(d.values.length);});
+
+            d3.select("svg")
+                .append("g")
+                .attr("transform","translate("+margin / 2+","+margin / 2+")")
+                .attr("class","axisWhite")
+                .call(d3.axisLeft(y_scale))
+
+            shift_right = (margin / 2) + (bar_width / 2);
+            shift_left = chart_height + (margin / 2);
+            d3.select("svg")
+                .append("g")
+                .attr("transform","translate("+shift_right+","+shift_left+")")
+                .attr("class","axisWhite")
+                .call(d3.axisBottom(x_scale).tickFormat(d3.format("d")));
+        }
+    </script>
+</body>
+</html>
