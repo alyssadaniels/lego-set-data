@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEGO Sets Through the Years</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.0.0/d3.min.js" charset="utf-8"></script>
+    <style>
+        body {
+            text-align: center;
+            padding-top: 30px;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 30px;
+        }
+
+        .ui {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .selection {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .selection select {
+            margin: 10px;
+        }
+
+        h1 {
+            font-family: arial;
+            color: white;
+            font-weight: 600;
+            font-size: 36px;
+            padding: 20px 0 0 0;
+        }
+
+        p {
+            font-family: arial;
+            color: white;
+            padding-top: 20px;
+            padding-right: 30px;
+            font-size: 18px;
+            overflow-wrap: break-word;
+            text-align: left;
+        }
+
+        div {
+            padding: 0 20px 0 20px;
+        }
+
+        svg {
+            text-align: center;
+            margin: 40px;
+        }
+
+        .axisLeft line, path {
+            stroke: white;
+        }
+
+        .axisLeft text {
+            fill: white; 
+        }
+
+        .axisBottom line, path {
+            stroke: white;
+        }
+
+        .axisBottom text {
+            fill: white; 
+        }
+
+        button {
+            margin: 100px;
+            background-color: #ffc247;
+            border: none;
+            border-radius: 8px;
+            text-align: center;
+            width: 200px;
+            height: 60px;
+            font-size: 40px;
+            color:black;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body onload="init()" style="background-color:#141414">
+    <div class="ui">
+        <h1 id="heading">LEGO Over the Years</h1>
+        <p>Select different years to see how they compare!</p>
+        <div class="selection">
+            <select id="year1" onchange="changeYear1()">Select Year</select>
+            <select id="year2" onchange="changeYear2()">Select Year</select>
+        </div>
+    </div>
+    <div class="content">
+        <div class="graph1">
+            <svg class="color1">
+
+            </svg>
+            <svg class="extras1">
+
+            </svg>
+            <h2 id="heading1"></h2>
+        </div>
+        <div class ="graph2">
+            <svg class="color2">
+
+            </svg>
+            <svg class="extras2">
+
+            </svg>
+            <h2 id="heading1"></h2>
+        </div>
+    </div>
+
+    <script>
+        var year_data;
+        const height = 320;
+        const width = 320;
+        const bar_width = 40;
+        const margin = 40;
+        const chart_width = width - margin;
+        const chart_height = height - margin;
+
+        async function init() {
+            const sets_data = await d3.csv("data/sets.csv");
+            const inventories_data = await d3.csv("data/inventories.csv");
+            const inventory_parts_data = await d3.csv("data/inventory_parts.csv");
+            const colors_data = await d3.csv("data/colors.csv");
+
+            // set_num to year
+            // set num to num parts
+            set_num_to_year = new Map();
+            set_num_to_parts = new Map();
+
+            for (var i = 0; i < sets_data.length; i++) {
+                num = sets_data[i].set_num;
+
+                set_num_to_year.set(num,sets_data[i].year);
+                set_num_to_parts.set(num, sets_data[i].num_parts);
+            }
+
+            // all parts (by invenentory id) in each set (by set_num)
+            set_num_to_inv = new Map();
+
+            for (var i = 0; i < inventories_data.length; i++) {
+                num = inventories_data[i].set_num;
+                id = inventories_data[i].id;
+
+                set_num_to_inv.set(num, id);
+            }
+
+            // color id to rgb color
+            color_to_hex = new Map();
+
+            for (var i = 0; i < colors_data.length; i++) {
+                color_id = colors_data[i].id;
+                hex = colors_data[i].rgb;
+
+                color_to_hex.set(color_id, hex);
+            }
+
+            inv_to_colors = new Map();
+            inv_to_quantities = new Map();
+
+            for (var i = 0; i < inventory_parts_data.length; i++) {
+                inv_id = inventory_parts_data[i].inventory_id;
+                color = color_to_hex.get(inventory_parts_data[i].color_id);
+                quantity = inventory_parts_data[i].quantity;
+
+                // colors
+                if (inv_to_colors.has(inv_id)) {
+                    arr=inv_to_colors.get(inv_id);
+                    arr.push(color);
+
+                    inv_to_colors.set(inv_id, arr);
+                } else {
+                    arr=[color];
+                    inv_to_colors.set(inv_id, arr);
+                }
+
+                // quantities
+                if (inv_to_quantities.has(inv_id)) {
+                    arr=inv_to_quantities.get(inv_id);
+                    arr.push(quantity);
+
+                    inv_to_quantities.set(inv_id, arr);
+                } else {
+                    arr=[quantity];
+                    inv_to_quantities.set(inv_id, arr);
+                }
+            }
+
+
+            // need to create an array of data objects where each object has set_num, year, num_pieces, inventory_id, colors_arr, color_quantities
+            final_data = [];
+
+            for (const [key, value] of set_num_to_inv) {
+                sn = key;
+                y = set_num_to_year.get(sn);
+                ii = value;
+                c = inv_to_colors.get(ii);
+                q = inv_to_quantities.get(ii);
+                nm = set_num_to_parts.get(sn);
+
+                const obj = {
+                    set_num: sn,
+                    year: y,
+                    colors: c,
+                    quantities: q,
+                    num_parts: nm
+                };
+
+                final_data.push(obj);
+            }
+
+            years = d3.nest()
+                .key(function(d) {return d.year})
+                .entries(final_data);
+
+            year_data = [];
+            // each year should have a map that maps from a color to the quantity (can then sort map so colors will appear in the same order)
+            for (var i = 0; i < years.length; i++) {
+                year = years[i].values;
+                color_map = new Map();
+                part_nums = []
+
+                for (var j = 0; j < year.length; j++) {
+                    colors = years[i].values[j].colors;
+                    quantities = years[i].values[j].quantities;
+                    // colors + quantities
+                    if (colors) {
+                        for (var k = 0; k < colors.length; k++) {
+                            if (color_map.has(colors[k])) {
+                                prev = color_map.get(colors[k]);
+
+                                color_map.set(colors[k], prev + parseInt(quantities[k]));
+                            } else {
+                                color_map.set(colors[k], parseInt(quantities[k]));
+                            }
+                        }
+                    }
+
+                    num_parts = years[i].values[j].num_parts
+
+                    part_nums.push(num_parts);
+                }
+
+                avg = 0;
+                part_nums.forEach(item => {
+                    avg += parseInt(item);
+                })
+
+                avg = parseInt(avg  / part_nums.length);
+
+                const obj = {year: year[0].year, colors: color_map, parts_avg: avg, biggest_set: Math.max(...part_nums)};
+                year_data.push(obj);
+            }
+
+            // sort
+            function comp(first, second) {
+                if (first.year < second.year) {
+                    return -1;
+                } else if (first.year > second.year) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+
+            year_data.sort(comp);
+
+            years = [];
+            bar_x = [];
+            max_avg = 0;
+            year_idx = new Map();
+
+            for (var i = 0; i < year_data.length; i++) {
+                year_idx.set(year_data[i].year, i);
+
+                years.push(year_data[i].year);
+                bar_x.push(i * bar_width);
+
+                if (year_data[i].parts_avg > max_avg) {
+                    max_avg = year_data[i].parts_avg;
+                }
+            }
+
+            for (var i = 0; i < years.length; i++) {
+                year1 = document.getElementById('year1');
+
+                for (var i = 0; i<=years.length; i++){
+                    var option = document.createElement('option');
+                    option.value = years[i];
+                    option.innerHTML = years[i];
+                    year1.appendChild(option);
+                }
+
+                year2 = document.getElementById('year2');
+
+                for (var i = 0; i<=years.length; i++){
+                    var option = document.createElement('option');
+                    option.value = years[i];
+                    option.innerHTML = years[i];
+                    year2.appendChild(option);
+                }
+            }
+
+            d3.selectAll("svg")
+                .style("margin", "10px")
+                .attr("width", width)
+                .attr("height", height);
+
+            max_q = Math.max(...year_data[0].colors.values());
+
+            colorSizeScale = d3.scaleLinear()
+            .domain([0, max_q])
+            .range([8, 40]);
+
+            // year 1 colors
+            svg1 = d3.select(".color1");
+
+            data = Array.from(year_data[0].colors, ([key, value]) => ({ key, value }));
+
+            node1 = svg1
+                .append("g")
+                .selectAll("circle")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("r", function(d) {return colorSizeScale(d.value)})
+                .attr("cx", chart_width / 2)
+                .attr("cy", chart_height / 2)
+                .attr("fill", function(d) {return "#"+ d.key})
+                .attr("fill-opacity", 0.9)
+                .attr("stroke", "white")
+                .style("stroke-width", 1);
+
+            simulation1 = d3.forceSimulation()
+                .force("center", d3.forceCenter().x(chart_width / 2).y(chart_height / 2))
+                .force("charge", d3.forceManyBody().strength(.1))
+                .force("collide", d3.forceCollide().strength(.2).radius(function(d){ return (colorSizeScale(d.value)+3) }).iterations(1));
+
+                simulation1
+                    .nodes(data)
+                    .on("tick", function(d){
+                        node1
+                            .attr("cx", function(d){ return d.x; })
+                            .attr("cy", function(d){ return d.y; })
+                    });
+
+            // year 2 colors
+            svg2 = d3.select(".color2");
+            node2 = svg2
+                .append("g")
+                .selectAll("circle")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("r", function(d) {return colorSizeScale(d.value)})
+                .attr("cx", chart_width / 2)
+                .attr("cy", chart_height / 2)
+                .attr("fill", function(d) {return "#"+ d.key})
+                .attr("fill-opacity", 0.9)
+                .attr("stroke", "white")
+                .style("stroke-width", 1);
+
+            simulation2 = d3.forceSimulation()
+                .force("center", d3.forceCenter().x(chart_width / 2).y(chart_height / 2))
+                .force("charge", d3.forceManyBody().strength(.1))
+                .force("collide", d3.forceCollide().strength(.2).radius(function(d){ return (colorSizeScale(d.value)+3) }).iterations(1));
+
+                simulation2
+                    .nodes(data)
+                    .on("tick", function(d){
+                        node2
+                            .attr("cx", function(d){ return d.x; })
+                            .attr("cy", function(d){ return d.y; })
+                    });
+
+            init_biggest_set = year_data[0].biggest_set;
+            init_avg_parts = year_data[0].parts_avg;
+            init_num_colors = year_data[0].colors.size;
+
+            data = [init_biggest_set, init_avg_parts, init_num_colors];
+
+            extrasXScale = d3.scaleLinear()
+                .domain(data)
+                .range(["Biggest Set","Average Parts", "Num Colors"]);
+
+            extrasYScale = d3.scaleLinear()
+                .domain([0, Math.max(...data)])
+                .range([chart_height,0]);
+
+            d3.select(".extras1")
+                .append("g")
+                .attr("transform","translate("+margin / 2+","+margin / 2+")")
+                .selectAll("rect")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("width", bar_width)
+                .attr("x", function(d,i) {return i * bar_width})
+                .attr("stroke", "black")
+                .attr("stroke-width", 3)
+                .attr("fill", "#ffc247")
+                .attr("height", 0)
+                .attr("y", chart_height)
+                .transition().duration(600)
+                .attr("height", function(d) {
+                    return chart_height-extrasYScale(d);
+                })
+                .attr("y", function(d) {
+                    return extrasYScale(d);
+                });
+                
+            d3.select(".extras2")
+                .append("g")
+                .attr("transform","translate("+margin / 2+","+margin / 2+")")
+                .selectAll("rect")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("width", bar_width)
+                .attr("x", function(d,i) {return i * bar_width})
+                .attr("stroke", "black")
+                .attr("stroke-width", 3)
+                .attr("fill", "#ffc247")
+                .attr("height", 0)
+                .attr("y", chart_height)
+                .transition().duration(600)
+                .attr("height", function(d) {
+                    return chart_height-extrasYScale(d);
+                })
+                .attr("y", function(d) {
+                    return extrasYScale(d);
+                }); 
+
+        }
+
+        function changeYear1() {
+            // get year
+            select = document.getElementById('year1');
+            year = select.options[select.selectedIndex].value;
+
+            idx = year_idx.get(year)
+
+            // change colors cloud
+            d3.select(".color1")
+                .selectAll("circle")
+                .transition().duration(600)
+                .attr("r", 0)
+                .remove();
+
+            max_q = Math.max(...year_data[idx].colors.values());
+
+            colorSizeScale = d3.scaleLinear()
+            .domain([0, max_q])
+            .range([8, 40]);
+
+            svg1 = d3.select(".color1");
+
+            data = Array.from(year_data[idx].colors, ([key, value]) => ({ key, value }));
+
+            node1 = svg1
+                .append("g")
+                .selectAll("circle")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("r", function(d) {return colorSizeScale(d.value)})
+                .attr("cx", chart_width / 2)
+                .attr("cy", chart_height / 2)
+                .attr("fill", function(d) {return "#"+ d.key})
+                .attr("fill-opacity", 0.9)
+                .attr("stroke", "white")
+                .style("stroke-width", 1);
+
+            simulation1 = d3.forceSimulation()
+                .force("center", d3.forceCenter().x(chart_width / 2).y(chart_height / 2))
+                .force("charge", d3.forceManyBody().strength(.1))
+                .force("collide", d3.forceCollide().strength(.2).radius(function(d){ return (colorSizeScale(d.value)+3) }).iterations(1));
+
+                simulation1
+                    .nodes(data)
+                    .on("tick", function(d){
+                        node1
+                            .attr("cx", function(d){ return d.x; })
+                            .attr("cy", function(d){ return d.y; })
+                    });
+
+
+            // change extras bar chart
+            biggest_set = year_data[idx].biggest_set;
+            avg_parts = year_data[idx].parts_avg;
+            num_colors = year_data[idx].colors.size;
+
+            data = [biggest_set, avg_parts, num_colors];
+
+            extrasXScale = d3.scaleLinear()
+                .domain(data)
+                .range(["Biggest Set","Average Parts", "Num Colors"]);
+
+            extrasYScale = d3.scaleLinear()
+                .domain([0, Math.max(...data)])
+                .range([chart_height,0]);
+
+            d3.select(".extras1")
+                .selectAll("rect")
+                .data(data)
+                .transition().duration(600)
+                .attr("height", function(d) {
+                    return chart_height-extrasYScale(d);
+                })
+                .attr("y", function(d) {
+                    return extrasYScale(d);
+                }); 
+        }
+
+        function changeYear2() {
+            // get year
+            select = document.getElementById('year2');
+            year = select.options[select.selectedIndex].value;
+
+            idx = year_idx.get(year)
+
+            // change colors cloud
+            d3.select(".color2")
+                .selectAll("circle")
+                .transition().duration(600)
+                .attr("r", 0)
+                .remove();
+
+            max_q = Math.max(...year_data[idx].colors.values());
+            data = Array.from(year_data[idx].colors, ([key, value]) => ({ key, value }));
+
+
+            colorSizeScale = d3.scaleLinear()
+            .domain([0, max_q])
+            .range([8, 40]);
+
+            svg2 = d3.select(".color2");
+            node2 = svg2
+                .append("g")
+                .selectAll("circle")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("r", function(d) {return colorSizeScale(d.value)})
+                .attr("cx", chart_width / 2)
+                .attr("cy", chart_height / 2)
+                .attr("fill", function(d) {return "#"+ d.key})
+                .attr("fill-opacity", 0.9)
+                .attr("stroke", "white")
+                .style("stroke-width", 1);
+
+            simulation2 = d3.forceSimulation()
+                .force("center", d3.forceCenter().x(chart_width / 2).y(chart_height / 2))
+                .force("charge", d3.forceManyBody().strength(.1))
+                .force("collide", d3.forceCollide().strength(.2).radius(function(d){ return (colorSizeScale(d.value)+3) }).iterations(1));
+
+                simulation2
+                    .nodes(data)
+                    .on("tick", function(d){
+                        node2
+                            .attr("cx", function(d){ return d.x; })
+                            .attr("cy", function(d){ return d.y; })
+                    });
+
+            // change extras bar chart
+            biggest_set = year_data[idx].biggest_set;
+            avg_parts = year_data[idx].parts_avg;
+            num_colors = year_data[idx].colors.size;
+
+            data = [biggest_set, avg_parts, num_colors];
+
+            extrasXScale = d3.scaleLinear()
+                .domain(data)
+                .range(["Biggest Set","Average Parts", "Num Colors"]);
+
+            extrasYScale = d3.scaleLinear()
+                .domain([0, Math.max(...data)])
+                .range([chart_height,0]);
+
+            d3.select(".extras2")
+                .selectAll("rect")
+                .data(data)
+                .transition().duration(600)
+                .attr("height", function(d) {
+                    return chart_height-extrasYScale(d);
+                })
+                .attr("y", function(d) {
+                    return extrasYScale(d);
+                }); 
+        }
+    </script>
+</body>
+</html>
