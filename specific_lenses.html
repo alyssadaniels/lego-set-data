@@ -25,15 +25,16 @@
             font-family: arial;
             color: white;
             font-weight: 600;
-            font-size: 60px;
+            font-size: 36px;
             padding: 20px 0 0 0;
         }
 
         p {
             font-family: arial;
             color: white;
-            padding: 20px 60px 0 60px;
-            font-size: 24px;
+            padding-top: 20px;
+            padding-right: 30px;
+            font-size: 18px;
             overflow-wrap: break-word;
             text-align: left;
         }
@@ -69,9 +70,9 @@
             border: none;
             border-radius: 8px;
             text-align: center;
-            width: 240px;
-            height: 100px;
-            font-size: 50px;
+            width: 200px;
+            height: 60px;
+            font-size: 40px;
             color:black;
             font-weight: 600;
         }
@@ -87,7 +88,7 @@
         </div>
         <div>
             <p id="description"></p>
-            <button onclick="transitionMaxPieces()">Next</button>
+            <button id="next" type="button" onclick="transitionMaxPieces()">Next</button>
         </div>
 
     </div>
@@ -251,6 +252,8 @@
 
             document.getElementById("description").innerHTML = "The chart displayed here shows the average number of pieces in a set from 1950-2017. <br/><br/> Now that we know a little bit about LEGO sets throughout the years, let's dive a little deeper into the very foundation of each LEGO set: the bricks. <br/><br/> While it might be hard to imagine now, in 1950, sets averaged a mere 10 pieces per set. However, that number has grown a considerable amount since.";
             // start with years 1950-1972, transition from orange bars into the actual color distribution
+
+            document.getElementById("next").style.display = "initial";
 
             years = [];
             bar_x = [];

@@ -25,15 +25,16 @@
             font-family: arial;
             color: white;
             font-weight: 600;
-            font-size: 60px;
+            font-size: 36px;
             padding: 20px 0 0 0;
         }
 
         p {
             font-family: arial;
             color: white;
-            padding: 20px 60px 0 60px;
-            font-size: 28px;
+            padding-top: 20px;
+            padding-right: 30px;
+            font-size: 18px;
             overflow-wrap: break-word;
             text-align: left;
         }
@@ -61,9 +62,9 @@
             border: none;
             border-radius: 8px;
             text-align: center;
-            width: 240px;
-            height: 100px;
-            font-size: 50px;
+            width: 200px;
+            height: 60px;
+            font-size: 40px;
             color:black;
             font-weight: 600;
         }
@@ -79,8 +80,7 @@
         </div>
         <div>
             <p id="description"></p>
-            <p>Hover over individual bars for more detailed information about each year.</p>
-            <button type="button" onclick="window.location.href='specific_lenses.html'">Next</button>
+            <button id="next" type="button" onclick="window.location.href='specific_lenses.html'">Next</button>
         </div>
 
     </div>
@@ -130,7 +130,9 @@
 
             document.getElementById("description").innerHTML = "From 1950 to 2017 LEGO released around " + total_sets + " unique sets (wow!). LEGO released the least amount of sets in " + min_year + ", releasing only " + min_sets 
             + ". This reduction in the number of sets may have been related to the tragic fire that struck LEGO's wooden-toy factory in February of that year. On the contrary, the most impressing year for LEGO sets was " + max_year
-            + ". There were " + max_sets + " released that year. ";
+            + ". There were " + max_sets + " released that year.";
+
+            document.getElementById("next").style.display = "initial";
 
             years.sort();
 
