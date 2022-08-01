@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEGO Sets Through the Years</title>
+
+    <script src="http://d3js.org/d3.v5.min.js" charset="utf-8"></script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 40px;
+            margin: 12px 100px 12px 100px;
+        }
+
+        h1 {
+            font-family: arial;
+            color: white;
+            font-weight: 600;
+            font-size: 38px;
+            padding: 20px 0 0 0;
+        }
+
+        h2 {
+            font-family: arial;
+            color: white;
+            font-weight: 600;
+            font-size: 24px;
+            padding: 20px 0 0 0;
+        }
+
+        p {
+            font-family: arial;
+            color: white;
+            padding-top: 20px;
+            padding-right: 30px;
+            font-size: 18px;
+            overflow-wrap: break-word;
+            text-align: left;
+        }
+
+        a {
+            font-family: arial;
+            color: white;
+        }
+
+        img {
+            width: 180px;
+            height: 180px;
+        }
+
+        div {
+            display: flex;
+            padding: 0 180px 0 180px;
+        }
+
+        button {
+            margin: 100px;
+            background-color: #ffc247;
+            border: none;
+            border-radius: 8px;
+            text-align: center;
+            width: 200px;
+            height: 60px;
+            font-size: 40px;
+            color:black;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body style="background-color:#141414">
+    <h1>Sources</h1>
+    <img src="img/LEGO_logo.png">
+    <p>All of the data used in this visualization is from <a href="https://www.kaggle.com/datasets/rtatman/lego-database?resource=download&select=sets.csv">this dataset</a>
+    uploaded to <a href="https://www.kaggle.com/">Kaggle.com.</a> The data itself was compiled by <a href="https://rebrickable.com/about/">Rebrickable</a>, a site dedicated
+    to showing what sets you can build from parts you already own!</p>
+    <br/>
+    <br/>
+    <h2>Details about LEGO's history were compiled from the following resources</h2>
+    <p>LEGO History: <a href="https://www.lego.com/en-us/history">https://www.lego.com/en-us/history</a></p>
+    <p>The LEGO Group History: <a href="https://www.lego.com/en-us/aboutus/lego-group/the-lego-group-history/">https://www.lego.com/en-us/aboutus/lego-group/the-lego-group-history/</a></p>
+    <p>Significant events of the 1960s: <a href="https://brickset.com/article/24359/significant-events-of-the-1960s">https://brickset.com/article/24359/significant-events-of-the-1960s</a></p>
+
+    <button type="button" onclick="window.location.href='exploration.html'">Back</button>
+</body>
+</html>
