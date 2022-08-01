@@ -124,8 +124,8 @@
 
     <script>
         var year_data;
-        const height = 320;
-        const width = 320;
+        const height = 340;
+        const width = 340;
         const bar_width = 40;
         const margin = 60;
         const chart_width = width - margin;
@@ -298,7 +298,7 @@
             for (var i = 0; i < years.length; i++) {
                 year1 = document.getElementById('year1');
 
-                for (var i = 0; i<=years.length; i++){
+                for (var i = 0; i<years.length; i++){
                     var option = document.createElement('option');
                     option.value = years[i];
                     option.innerHTML = years[i];
@@ -307,7 +307,7 @@
 
                 year2 = document.getElementById('year2');
 
-                for (var i = 0; i<=years.length; i++){
+                for (var i = 0; i<years.length; i++){
                     var option = document.createElement('option');
                     option.value = years[i];
                     option.innerHTML = years[i];
