@@ -326,7 +326,6 @@
             years = [];
             bar_x = [];
 
-            console.log(year_data);
 
             for (var i = 0; i < year_data.length; i++) {
                 years.push(year_data[i].year);
@@ -337,7 +336,6 @@
                 }
             }
 
-            console.log(max);
 
             x_scale = d3.scaleLinear()
                 .domain(years)
