@@ -10,15 +10,16 @@
     <style>
         body {
             text-align: center;
-            padding-top: 60px;
+            padding-top: 30px;
         }
 
         .content {
             display: flex;
             flex-direction: row;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
-            padding-top: 60px;
+            height: 100vh;
+            width: 100vw
         }
 
         h1 {
@@ -44,25 +45,29 @@
             color: white;
         }
 
-        div {
-            padding: 0 20px 0 20px;
-        }
-
         svg {
             text-align: center;
             margin: 40px;
         }
 
-        .axisWhite line, path {
+        .axisLeft line, path {
             stroke: white;
         }
 
-        .axisWhite text {
-            fill: white;
+        .axisLeft text {
+            fill: white; 
+        }
+
+        .axisBottom line, path {
+            stroke: white;
+        }
+
+        .axisBottom text {
+            fill: white; 
         }
 
         button {
-            margin: 100px;
+            margin: 40px;
             background-color: #ffc247;
             border: none;
             border-radius: 8px;
@@ -95,10 +100,11 @@
         var curr_state = 0;
 
         var year_data;
-        const height = 600;
-        const width = 1000;
-        const bar_width = 14;
-        const margin = 70;
+        var decades = [1950, 1960, 1970, 1980, 1990, 2000, 2010];
+        const height = 400;
+        const width = 600;
+        const bar_width = 8;
+        const margin = 80;
         const chart_width = width - margin;
         const chart_height = height - margin;
 
@@ -325,8 +331,8 @@
                 .append("g")
                 .style("font-size", "16px")
                 .attr("transform","translate("+margin / 2+","+margin / 2+")")
-                .attr("class","axisWhite")
-                .call(d3.axisLeft(y_scale))
+                .attr("class","axisLeft")
+                .call(d3.axisLeft(y_scale));
 
             shift_right = (margin / 2) + (bar_width / 2);
             shift_left = chart_height + (margin / 2);
@@ -334,8 +340,8 @@
                 .append("g")
                 .style("font-size", "16px")
                 .attr("transform","translate("+shift_right+","+shift_left+")")
-                .attr("class","axisWhite")
-                .call(d3.axisBottom(x_scale).tickFormat(d3.format("d")));
+                .attr("class","axisBottom")
+                .call(d3.axisBottom(x_scale).tickValues(decades).tickFormat(d3.format("d")));
         }
 
 
@@ -387,7 +393,7 @@
                     .style("font-size", "16px")
                     .attr("transform","translate("+shift_right+","+shift_left+")")
                     .attr("class","axisBottom")
-                    .call(d3.axisBottom(x_scale).tickFormat(d3.format("d")));
+                    .call(d3.axisBottom(x_scale).tickValues(decades).tickFormat(d3.format("d")));
 
                     document.getElementById("description").innerHTML = "The chart displayed here shows the average number of pieces in a set from 1950-2017. <br/><br/> Now that we know a little bit about LEGO sets throughout the years, let's dive a little deeper into the very foundation of each LEGO set: the bricks. <br/><br/> While it might be hard to imagine now, in 1950, sets averaged a mere 10 pieces per set. However, that number has grown a considerable amount since.";
                     document.getElementById("heading").innerHTML = "Evolution of the Bricks";
@@ -432,7 +438,7 @@
                 d3.select(".axisBottom")
                     .transition().duration(1000)
                     .style("font-size", "10px")
-                    .call(d3.axisBottom(x_scale).tickFormat(d3.format("d")));
+                    .call(d3.axisBottom(x_scale).tickValues(decades).tickFormat(d3.format("d")));
 
                 document.getElementById("heading").innerHTML = "Largest Sets by Year";
                 document.getElementById("description").innerHTML = "This chart is displays the largest set (by number of pieces) each year. <br/><br/> With this display, it is easy to see that the size of LEGO sets have been consistently growing since LEGO's inception. The largest set to this day is the 'Taj Mahal,' released in 2008 with a staggering 5922 pieces!"
@@ -477,10 +483,10 @@
                 d3.select(".axisBottom")
                     .transition().duration(1000)
                     .style("font-size", "10px")
-                    .call(d3.axisBottom(x_scale).tickFormat(d3.format("d")));
+                    .call(d3.axisBottom(x_scale).tickValues(decades).tickFormat(d3.format("d")));
 
                 document.getElementById("heading").innerHTML = "Number of Colors by Year";
-                document.getElementById("description").innerHTML = "";
+                document.getElementById("description").innerHTML = "This chart shows the progression of colors included in LEGO sets. <br/><br/> In the early years of LEGO, all of the sets that had ever come out all shared the same 5-7 colors. Aside from what appears to be a large drop off of colors used after 2005, the number of colors used in LEGO sets has been steadily growing since 1950 but has leveled out in recent years.";
             } else {
                 // go to exploration sections
                 window.location.href='exploration.html'

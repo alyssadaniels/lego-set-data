@@ -13,12 +13,19 @@
             padding-top: 30px;
         }
 
+        h2 {
+            font-family: arial;
+            color: white;
+            font-weight: 600;
+            font-size: 24px;
+            padding: 0;
+        }
+
         .content {
             display: flex;
             flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-            padding-top: 30px;
+            align-items: flex-start;
+            justify-content: space-evenly;
         }
 
         .ui {
@@ -38,7 +45,10 @@
         }
 
         .selection select {
-            margin: 10px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            margin: 10px 60px 10px 60px;
         }
 
         h1 {
@@ -59,33 +69,21 @@
             text-align: left;
         }
 
+        .label {
+            text-align: center;
+        }
+
         div {
             padding: 0 20px 0 20px;
         }
 
         svg {
             text-align: center;
-            margin: 40px;
-        }
-
-        .axisLeft line, path {
-            stroke: white;
-        }
-
-        .axisLeft text {
-            fill: white; 
-        }
-
-        .axisBottom line, path {
-            stroke: white;
-        }
-
-        .axisBottom text {
-            fill: white; 
+            margin: 20px;
         }
 
         button {
-            margin: 100px;
+            margin: 60px;
             background-color: #ffc247;
             border: none;
             border-radius: 8px;
@@ -101,35 +99,27 @@
 <body onload="init()" style="background-color:#141414">
     <div class="ui">
         <h1 id="heading">LEGO Over the Years</h1>
-        <p>Select different years to see how they compare!</p>
+        <div class="bonus">
+            <button type="button" onclick="window.location.href='index.html'">Restart</button>
+            <button type="button" onclick="window.location.href='sources.html'">Sources</button>
+        </div>
+        <h2>Select different years to see how their part color distribution compares!</h2>
         <div class="selection">
             <select id="year1" onchange="changeYear1()">Select Year</select>
             <select id="year2" onchange="changeYear2()">Select Year</select>
         </div>
     </div>
     <div class="content">
-        <div class="graph1">
+        <div class="graph1">                
             <svg class="color1">
 
             </svg>
-            <svg class="extras1">
-
-            </svg>
-            <h2 id="heading1"></h2>
         </div>
         <div class ="graph2">
             <svg class="color2">
 
             </svg>
-            <svg class="extras2">
-
-            </svg>
-            <h2 id="heading1"></h2>
         </div>
-    </div>
-    <div class="bonus">
-        <button type="button" onclick="window.location.href='index.html'">Restart</button>
-        <button type="button" onclick="window.location.href='sources.html'">Sources</button>
     </div>
 
     <script>
@@ -137,7 +127,7 @@
         const height = 320;
         const width = 320;
         const bar_width = 40;
-        const margin = 40;
+        const margin = 60;
         const chart_width = width - margin;
         const chart_height = height - margin;
 
@@ -396,65 +386,6 @@
                             .attr("cx", function(d){ return d.x; })
                             .attr("cy", function(d){ return d.y; })
                     });
-
-            init_biggest_set = year_data[0].biggest_set;
-            init_avg_parts = year_data[0].parts_avg;
-            init_num_colors = year_data[0].colors.size;
-
-            data = [init_biggest_set, init_avg_parts];
-
-            extrasXScale = d3.scaleLinear()
-                .domain(data)
-                .range(["Biggest Set","Average Parts", "Num Colors"]);
-
-            extrasYScale = d3.scaleLinear()
-                .domain([0, Math.max(...data)])
-                .range([chart_height,0]);
-
-            d3.select(".extras1")
-                .append("g")
-                .attr("transform","translate("+margin / 2+","+margin / 2+")")
-                .selectAll("rect")
-                .data(data)
-                .enter()
-                .append("rect")
-                .attr("width", bar_width)
-                .attr("x", function(d,i) {return i * bar_width})
-                .attr("stroke", "black")
-                .attr("stroke-width", 3)
-                .attr("fill", "#ffc247")
-                .attr("height", 0)
-                .attr("y", chart_height)
-                .transition().duration(600)
-                .attr("height", function(d) {
-                    return chart_height-extrasYScale(d);
-                })
-                .attr("y", function(d) {
-                    return extrasYScale(d);
-                });
-                
-            d3.select(".extras2")
-                .append("g")
-                .attr("transform","translate("+margin / 2+","+margin / 2+")")
-                .selectAll("rect")
-                .data(data)
-                .enter()
-                .append("rect")
-                .attr("width", bar_width)
-                .attr("x", function(d,i) {return i * bar_width})
-                .attr("stroke", "black")
-                .attr("stroke-width", 3)
-                .attr("fill", "#ffc247")
-                .attr("height", 0)
-                .attr("y", chart_height)
-                .transition().duration(600)
-                .attr("height", function(d) {
-                    return chart_height-extrasYScale(d);
-                })
-                .attr("y", function(d) {
-                    return extrasYScale(d);
-                }); 
-
         }
 
         function changeYear1() {
@@ -507,33 +438,6 @@
                             .attr("cx", function(d){ return d.x; })
                             .attr("cy", function(d){ return d.y; })
                     });
-
-
-            // change extras bar chart
-            biggest_set = year_data[idx].biggest_set;
-            avg_parts = year_data[idx].parts_avg;
-            num_colors = year_data[idx].colors.size;
-
-            data = [biggest_set, avg_parts];
-
-            extrasXScale = d3.scaleLinear()
-                .domain(data)
-                .range(["Biggest Set","Average Parts", "Num Colors"]);
-
-            extrasYScale = d3.scaleLinear()
-                .domain([0, Math.max(...data)])
-                .range([chart_height,0]);
-
-            d3.select(".extras1")
-                .selectAll("rect")
-                .data(data)
-                .transition().duration(600)
-                .attr("height", function(d) {
-                    return chart_height-extrasYScale(d);
-                })
-                .attr("y", function(d) {
-                    return extrasYScale(d);
-                }); 
         }
 
         function changeYear2() {
@@ -541,7 +445,7 @@
             select = document.getElementById('year2');
             year = select.options[select.selectedIndex].value;
 
-            idx = year_idx.get(year)
+            idx = year_idx.get(year);
 
             // change colors cloud
             d3.select(".color2")
@@ -585,32 +489,6 @@
                             .attr("cx", function(d){ return d.x; })
                             .attr("cy", function(d){ return d.y; })
                     });
-
-            // change extras bar chart
-            biggest_set = year_data[idx].biggest_set;
-            avg_parts = year_data[idx].parts_avg;
-            num_colors = year_data[idx].colors.size;
-
-            data = [biggest_set, avg_parts];
-
-            extrasXScale = d3.scaleLinear()
-                .domain(data)
-                .range(["Biggest Set","Average Parts", "Num Colors"]);
-
-            extrasYScale = d3.scaleLinear()
-                .domain([0, Math.max(...data)])
-                .range([chart_height,0]);
-
-            d3.select(".extras2")
-                .selectAll("rect")
-                .data(data)
-                .transition().duration(600)
-                .attr("height", function(d) {
-                    return chart_height-extrasYScale(d);
-                })
-                .attr("y", function(d) {
-                    return extrasYScale(d);
-                }); 
         }
     </script>
 </body>
